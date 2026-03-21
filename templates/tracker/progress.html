@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Progress - GymTracker{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .week-section {
+        margin-bottom: 40px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .week-header {
+        background: #f8f9fa;
+        padding: 15px 20px;
+        border-bottom: 2px solid #ddd;
+        font-weight: 600;
+        color: #333;
+    }
+    .week-content {
+        padding: 20px;
+    }
+    .session-summary {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #fafafa;
+        border-radius: 4px;
+    }
+    .session-title {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    .lift-summary {
+        margin-bottom: 10px;
+        font-size: 14px;
+        color: #555;
+    }
+    .lift-name {
+        font-weight: 500;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2>Progress by Week</h2>
+
+{% if weeks %}
+    {% for week_start, sessions in weeks %}
+    <div class="week-section">
+        <div class="week-header">
+            Week of {{ week_start|date:"F d, Y" }}
+        </div>
+        <div class="week-content">
+            {% for session in sessions %}
+            <div class="session-summary">
+                <div class="session-title">
+                    Workout {{ session.workout_type }} - {{ session.date|date:"F d, Y" }}
+                </div>
+                {% for lift in session.lifts.all %}
+                <div class="lift-summary">
+                    <span class="lift-name">{{ lift.get_lift_name_display }}:</span>
+                    {% with sets=lift.sets.all %}
+                    {% if sets %}
+                        {% with last_set=sets|last %}
+                        {{ last_set.weight }}lbs x {{ last_set.reps }}
+                        {% endwith %}
+                    {% endif %}
+                    {% endwith %}
+                    {% if lift.notes %}<br><small>💡 {{ lift.notes }}</small>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="empty-state">
+        <p>No workouts logged yet. <a href="{% url 'workout_form' %}">Start logging!</a></p>
+    </div>
+{% endif %}
+{% endblock %}
+

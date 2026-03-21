@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Log Workout - GymTracker{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .workout-header {
+        background: #007bff;
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    .workout-header h2 {
+        font-size: 24px;
+        margin-bottom: 5px;
+    }
+    .workout-header p {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+    .lift-section {
+        margin-bottom: 40px;
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 8px;
+        background: #fafafa;
+    }
+    .lift-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #333;
+    }
+    .set-row {
+        display: grid;
+        grid-template-columns: 100px 100px 1fr;
+        gap: 15px;
+        margin-bottom: 12px;
+        align-items: center;
+    }
+    .set-row label {
+        font-weight: 500;
+        color: #555;
+    }
+    .set-row input {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    .set-row input:focus {
+        outline: none;
+        border-color: #0066cc;
+        box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+    }
+    .notes-section {
+        margin-top: 15px;
+    }
+    .notes-section label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #555;
+    }
+    .notes-section textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-family: inherit;
+        font-size: 14px;
+        resize: vertical;
+    }
+    .notes-section textarea:focus {
+        outline: none;
+        border-color: #0066cc;
+        box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+    }
+    .submit-btn {
+        background: #28a745;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .submit-btn:hover {
+        background: #218838;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+
+    <div class="workout-header">
+        <h2>Workout {{ next_workout }}</h2>
+        <p>{{ lifts|length }} lifts today</p>
+    </div>
+
+    {% for lift in lifts %}
+        {% with display_name=lift|title %}
+        <div class="lift-section">
+            <div class="lift-title">{{ display_name }}</div>
+
+            {% for set_num in "x"|rjust:sets_per_lift %}
+                {% with set_num=forloop.counter %}
+                <div class="set-row">
+                    <label>Set {{ set_num }}</label>
+                    <input type="number" 
+                           name="weight_{{ lift }}_set_{{ set_num }}" 
+                           placeholder="Weight (lbs)" 
+                           step="0.5" 
+                           required>
+                    <input type="number" 
+                           name="reps_{{ lift }}_set_{{ set_num }}" 
+                           placeholder="Reps" 
+                           value="{{ reps_per_set }}"
+                           required>
+                </div>
+                {% endwith %}
+            {% endfor %}
+
+            <div class="notes-section">
+                <label for="notes_{{ lift }}">Notes</label>
+                <textarea name="notes_{{ lift }}" 
+                         id="notes_{{ lift }}" 
+                         placeholder="Any notes for this lift..."></textarea>
+            </div>
+        </div>
+        {% endwith %}
+    {% endfor %}
+
+    <button type="submit" class="submit-btn">Save Workout</button>
+</form>
+{% endblock %}
+
