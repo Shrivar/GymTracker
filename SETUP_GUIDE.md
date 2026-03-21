@@ -39,7 +39,8 @@ GymTracker/
 
 ### Prerequisites
 - Python 3.14.3+
-- PostgreSQL 12+
+- Access to your Cloud SQL PostgreSQL instance
+- Cloud SQL Auth Proxy configured/running by you
 - pip and venv
 
 ### Step 1: Clone & Setup Environment
@@ -51,26 +52,15 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Step 2: Configure PostgreSQL Locally
+### Step 2: Use Your Existing Cloud SQL Proxy Setup
 
-Create a local PostgreSQL database:
+Assume your Cloud SQL Auth Proxy is already configured and running locally by you.
 
-```bash
-# Connect to PostgreSQL
-psql -U postgres
+The app expects PostgreSQL to be reachable at `127.0.0.1:5432` through that proxy (or your chosen local port).
 
-# Run these commands in psql:
-CREATE DATABASE gymtracker;
-CREATE USER gymtracker_user WITH PASSWORD 'your_secure_password';
-ALTER ROLE gymtracker_user SET client_encoding TO 'utf8';
-ALTER ROLE gymtracker_user SET default_transaction_isolation TO 'read committed';
-ALTER ROLE gymtracker_user SET default_transaction_deferrable TO on;
-ALTER ROLE gymtracker_user SET timezone TO 'UTC';
-GRANT ALL PRIVILEGES ON DATABASE gymtracker TO gymtracker_user;
-\q
-```
+If you use a different local port, update `DB_PORT` accordingly in `.env`.
 
-### Step 3: Update .env for Local Development
+### Step 3: Update `.env` for Local Development (via Proxy)
 
 Edit `.env`:
 ```
@@ -78,8 +68,9 @@ SECRET_KEY=your-local-secret-key
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
 
+# Local app connects through your running Cloud SQL proxy
 USE_CLOUD_SQL_SOCKET=False
-DB_HOST=localhost
+DB_HOST=127.0.0.1
 DB_PORT=5432
 DB_USER=gymtracker_user
 DB_PASSWORD=your_secure_password
@@ -89,7 +80,12 @@ SOCIALACCOUNT_PROVIDERS_GOOGLE_APP_ID=your-client-id.apps.googleusercontent.com
 SOCIALACCOUNT_PROVIDERS_GOOGLE_APP_SECRET=your-client-secret
 ```
 
+> Keep `USE_CLOUD_SQL_SOCKET=False` for local proxy/TCP usage.
+> `USE_CLOUD_SQL_SOCKET=True` is for Cloud Run using `/cloudsql/...`.
+
 ### Step 4: Create Django Migrations
+
+Make sure your Cloud SQL proxy is already running.
 
 ```bash
 python manage.py makemigrations
@@ -104,6 +100,8 @@ python manage.py createsuperuser
 ```
 
 ### Step 6: Run Development Server
+
+Make sure your Cloud SQL proxy is already running.
 
 ```bash
 python manage.py runserver
@@ -320,12 +318,17 @@ To add more, edit the `LIFT_NAMES` choices in `Lift` model.
 
 ## 🚨 Troubleshooting
 
-### Local PostgreSQL Connection Issues
+### Local Cloud SQL Proxy Connection Issues
 
 ```bash
-# Test connection
-psql -h localhost -U gymtracker_user -d gymtracker
+# Test DB connection via your running proxy
+psql -h 127.0.0.1 -p 5432 -U gymtracker_user -d gymtracker
 ```
+
+If connection fails:
+1. Confirm your proxy is running and mapped to the expected local port
+2. Verify `DB_HOST`/`DB_PORT`/`DB_USER`/`DB_PASSWORD`/`DB_NAME` in `.env`
+3. Confirm the Cloud SQL instance is running and reachable
 
 ### Django Migration Errors
 
@@ -368,4 +371,3 @@ gcloud logging read "resource.type=cloud_run_revision AND resource.labels.servic
 3. Deploy to Cloud Run
 4. Update your Cloud Run URL in Google OAuth settings
 5. Start logging your lifts!
-
