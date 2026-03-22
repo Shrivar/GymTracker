@@ -61,7 +61,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 # Database
-if env("USE_CLOUD_SQL_SOCKET", default=False):
+if env.bool("USE_CLOUD_SQL_SOCKET", default=False):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
