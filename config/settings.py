@@ -40,7 +40,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "allauth.account.middleware.AccountMiddleware"
+    "allauth.account.middleware.AccountMiddleware",
+    "tracker.middleware.AuthorizedUserMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -123,8 +124,16 @@ SOCIALACCOUNT_PROVIDERS = {
     "google": {
         "SCOPE": ["profile", "email"],
         "AUTH_PARAMS": {"access_type": "online"},
+        "APP": {
+            "client_id": env("GOOGLE_CLIENT_ID", default=""),
+            "secret": env("GOOGLE_CLIENT_SECRET", default=""),
+            "key": "",
+        },
     }
 }
+
+# Single-user access control — only this email is allowed in
+AUTHORIZED_EMAIL = env("AUTHORIZED_EMAIL", default="")
 
 LOGIN_REDIRECT_URL = "workout_form"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/"
