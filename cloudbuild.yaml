@@ -13,17 +13,20 @@ steps:
       - "push"
       - "gcr.io/$PROJECT_ID/gymtracker:$SHORT_SHA"
 
-  - name: "gcr.io/cloud-builders/run"
+  - name: "gcr.io/cloud-builders/gcloud"
     args:
+      - "run"
       - "deploy"
-      - "gymtracker"
+      - "gym-tracker"
       - "--image"
       - "gcr.io/$PROJECT_ID/gymtracker:$SHORT_SHA"
       - "--region"
-      - "us-central1"
+      - "us-east4"
       - "--platform"
       - "managed"
       - "--allow-unauthenticated"
+      - "--add-cloudsql-instances"
+      - "orchestrina-165805:us-east4:shrivar-personal"
 
 images:
   - "gcr.io/$PROJECT_ID/gymtracker:$SHORT_SHA"

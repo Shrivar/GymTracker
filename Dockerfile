@@ -5,6 +5,8 @@ WORKDIR /app
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PORT=8080
+ENV DJANGO_SETTINGS_MODULE=config.settings
+ENV SECRET_KEY=dummy-build-only-secret-key
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

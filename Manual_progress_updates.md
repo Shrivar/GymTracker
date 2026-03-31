@@ -17,3 +17,15 @@
 * Some of the framework specific stuff was also not taken care of - once I started up the application I encountered 
   runtime errors, and had to prompt the AI with the error to understand how to fix it. I had to configure auth via 
   django admin before I was able to actually use the site. 
+
+3/31/26
+* Finally picked this back up. 
+* First step in debugging AI setup code, make sure logging for the errors is properly enabled. That ended up 
+  shedding light on the issues I was having, namely misconfigured/missing ENV variables.
+* Need to get into a better pattern of managing secrets/env variables and such with the prod environment. I'm doing 
+  everything manually now, which is fine, but was a part of the process that was a little annoying.
+* Also needed to manually setup a cloud sql connection for cloud run. I didn't use the generated cloudrun config 
+  file AI generated, did most of the infra setup manually.
+* Running into a number of other bugs - basically feeding the error back into AI. It's really the base-setup of the 
+  application that has been problematic. I think things will go more smoothly when I'm just using it for pure 
+  application code.
